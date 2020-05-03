@@ -51,14 +51,14 @@ class CurrentWeather {
 
 class FiveDayForecast {
   City city;
-  List<WeatherForecast> list;
+  List<WeatherForecast> forecast;
 
-  FiveDayForecast({this.city, this.list});
+  FiveDayForecast({this.city, this.forecast});
 
   factory FiveDayForecast.fromJson(Map<String, dynamic> json) {
     return FiveDayForecast(
       city: json['city'] != null ? City.fromJson(json['city']) : null,
-      list: json['list'] != null ? (json['list'] as List).map((i) => WeatherForecast.fromJson(i)).toList() : null,
+      forecast: json['list'] != null ? (json['list'] as List).map((i) => WeatherForecast.fromJson(i)).toList() : null,
     );
   }
 
@@ -67,8 +67,8 @@ class FiveDayForecast {
     if (this.city != null) {
       data['city'] = this.city.toJson();
     }
-    if (this.list != null) {
-      data['list'] = this.list.map((v) => v.toJson()).toList();
+    if (this.forecast != null) {
+      data['list'] = this.forecast.map((v) => v.toJson()).toList();
     }
     return data;
   }

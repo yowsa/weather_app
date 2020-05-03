@@ -1,4 +1,4 @@
-class WeatherToday {
+class CurrentWeather {
   int dt;
   int id;
   Main main;
@@ -9,10 +9,10 @@ class WeatherToday {
   List<Weather> weather;
   Wind wind;
 
-  WeatherToday({this.dt, this.id, this.main, this.name, this.sys, this.timezone, this.visibility, this.weather, this.wind});
+  CurrentWeather({this.dt, this.id, this.main, this.name, this.sys, this.timezone, this.visibility, this.weather, this.wind});
 
-  factory WeatherToday.fromJson(Map<String, dynamic> json) {
-    return WeatherToday(
+  factory CurrentWeather.fromJson(Map<String, dynamic> json) {
+    return CurrentWeather(
       dt: json['dt'],
       id: json['id'],
       main: json['main'] != null ? Main.fromJson(json['main']) : null,
@@ -49,14 +49,14 @@ class WeatherToday {
 }
 
 
-class WeatherFiveDayForecast {
+class FiveDayForecast {
   City city;
   List<WeatherForecast> list;
 
-  WeatherFiveDayForecast({this.city, this.list});
+  FiveDayForecast({this.city, this.list});
 
-  factory WeatherFiveDayForecast.fromJson(Map<String, dynamic> json) {
-    return WeatherFiveDayForecast(
+  factory FiveDayForecast.fromJson(Map<String, dynamic> json) {
+    return FiveDayForecast(
       city: json['city'] != null ? City.fromJson(json['city']) : null,
       list: json['list'] != null ? (json['list'] as List).map((i) => WeatherForecast.fromJson(i)).toList() : null,
     );
@@ -75,34 +75,34 @@ class WeatherFiveDayForecast {
 }
 
 class Main {
-  num feels_like;
+  num feelsLike;
   int humidity;
   int pressure;
   num temp;
-  num temp_max;
-  num temp_min;
+  num tempMax;
+  num tempMin;
 
-  Main({this.feels_like, this.humidity, this.pressure, this.temp, this.temp_max, this.temp_min});
+  Main({this.feelsLike, this.humidity, this.pressure, this.temp, this.tempMax, this.tempMin});
 
   factory Main.fromJson(Map<String, dynamic> json) {
     return Main(
-      feels_like: json['feels_like'],
+      feelsLike: json['feels_like'],
       humidity: json['humidity'],
       pressure: json['pressure'],
       temp: json['temp'],
-      temp_max: json['temp_max'],
-      temp_min: json['temp_min'],
+      tempMax: json['temp_max'],
+      tempMin: json['temp_min'],
     );
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['feels_like'] = this.feels_like;
+    data['feels_like'] = this.feelsLike;
     data['humidity'] = this.humidity;
     data['pressure'] = this.pressure;
     data['temp'] = this.temp;
-    data['temp_max'] = this.temp_max;
-    data['temp_min'] = this.temp_min;
+    data['temp_max'] = this.tempMax;
+    data['temp_min'] = this.tempMin;
     return data;
   }
 }
@@ -166,7 +166,7 @@ class Sys {
 
 class Wind {
   int deg;
-  double speed;
+  num speed;
 
   Wind({this.deg, this.speed});
 

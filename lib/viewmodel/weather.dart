@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class CurrentWeather {
@@ -10,6 +11,7 @@ class CurrentWeather {
   int visibility;
   List<Weather> weather;
   Wind wind;
+  String dateTime;
 
   CurrentWeather(
       {this.dt,
@@ -20,9 +22,12 @@ class CurrentWeather {
       this.timezone,
       this.visibility,
       this.weather,
-      this.wind});
+      this.wind,
+      this.dateTime});
 
   factory CurrentWeather.fromJson(Map<String, dynamic> json) {
+    List dates = DateHelper.getDates(json['timezone'], json['dt'], dateFormat: 'H:m EEEE, d MMM');
+//    print(dates[1]);
     return CurrentWeather(
       dt: json['dt'],
       id: json['id'],
@@ -35,30 +40,31 @@ class CurrentWeather {
           ? (json['weather'] as List).map((i) => Weather.fromJson(i)).toList()
           : null,
       wind: json['wind'] != null ? Wind.fromJson(json['wind']) : null,
+      dateTime: dates[1]
     );
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['dt'] = this.dt;
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['timezone'] = this.timezone;
-    data['visibility'] = this.visibility;
-    if (this.main != null) {
-      data['main'] = this.main.toJson();
-    }
-    if (this.sys != null) {
-      data['sys'] = this.sys.toJson();
-    }
-    if (this.weather != null) {
-      data['weather'] = this.weather.map((v) => v.toJson()).toList();
-    }
-    if (this.wind != null) {
-      data['wind'] = this.wind.toJson();
-    }
-    return data;
-  }
+//  Map<String, dynamic> toJson() {
+//    final Map<String, dynamic> data = new Map<String, dynamic>();
+//    data['dt'] = this.dt;
+//    data['id'] = this.id;
+//    data['name'] = this.name;
+//    data['timezone'] = this.timezone;
+//    data['visibility'] = this.visibility;
+//    if (this.main != null) {
+//      data['main'] = this.main.toJson();
+//    }
+//    if (this.sys != null) {
+//      data['sys'] = this.sys.toJson();
+//    }
+//    if (this.weather != null) {
+//      data['weather'] = this.weather.map((v) => v.toJson()).toList();
+//    }
+//    if (this.wind != null) {
+//      data['wind'] = this.wind.toJson();
+//    }
+//    return data;
+//  }
 }
 
 class FiveDayForecast {
@@ -126,7 +132,7 @@ class Main {
 
 class Weather {
   String description;
-  String icon;
+  IconData icon;
   int id;
   String main;
 
@@ -135,7 +141,7 @@ class Weather {
   factory Weather.fromJson(Map<String, dynamic> json) {
     return Weather(
       description: json['description'],
-      icon: json['icon'],
+      icon: WeatherIcons.icon(json['icon']),
       id: json['id'],
       main: json['main'],
     );
@@ -263,12 +269,40 @@ class WeatherForecast {
   }
 }
 
+
+class WeatherIcons{
+  static Map<String, dynamic>_icons = {
+    "01d": Icons.brightness_5,
+    "01n": Icons.brightness_4,
+    "02d": Icons.brightness_6,
+    "02n": Icons.brightness_6,
+    "03d": Icons.filter_drama,
+    "03n": Icons.filter_drama,
+    "04d": Icons.cloud,
+    "04n": Icons.cloud,
+    "09d": Icons.grain,
+    "09n": Icons.grain,
+    "10d": Icons.grain,
+    "10n": Icons.grain,
+    "11d": Icons.flash_on,
+    "11n": Icons.flash_on,
+    "13d": Icons.ac_unit,
+    "13n": Icons.ac_unit,
+    "50d": Icons.dehaze,
+    "50n": Icons.dehaze
+  };
+
+  static IconData icon(icon){
+    return _icons[icon];
+  }
+}
+
 class ForecastDay {
   final String weekday;
   final num tempMax;
   final num tempMin;
   final String description;
-  final String icon;
+  final IconData icon;
   final String date;
 
   ForecastDay(
@@ -279,15 +313,15 @@ class ForecastDay {
       this.icon,
       this.date});
 
-  factory ForecastDay.fromJson(Map<String, dynamic> json) {
-    return ForecastDay(
-        date: json['date'],
-        weekday: json['date']['weekday'],
-        tempMax: json['date']['tempMax'],
-        tempMin: json['date']['tempMin'],
-        description: json['date']['description'],
-        icon: json['date']['icon']);
-  }
+//  factory ForecastDay.fromJson(Map<String, dynamic> json) {
+//    return ForecastDay(
+//        date: json['date'],
+//        weekday: json['date']['weekday'],
+//        tempMax: json['date']['tempMax'],
+//        tempMin: json['date']['tempMin'],
+//        description: json['date']['description'],
+//        icon: json['date']['icon']);
+//  }
 }
 
 class ForecastResult {
@@ -297,24 +331,26 @@ class ForecastResult {
   ForecastResult({this.todayForecast, this.fiveDayForecast});
 }
 
-class ForecastCalculator {
-  List<dynamic> _getDates(int timezone, int timestamp) {
+class DateHelper {
+  static List<dynamic> getDates(int timezone, int timestamp, {String dateFormat = 'yyyy-MM-dd'}) {
     DateTime localDate = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
         .add(Duration(seconds: timezone));
-    String formattedDate = DateFormat('yyyy-MM-dd').format(localDate);
+    String formattedDate = DateFormat(dateFormat).format(localDate);
     String weekday = DateFormat('E').format(localDate);
     return [weekday, formattedDate];
   }
 
-  String _getToday(int timezone) {
+  static String getToday(int timezone) {
     DateTime localToday = DateTime.now().add(Duration(seconds: timezone));
     return DateFormat('yyyy-MM-dd').format(localToday);
   }
+}
 
+class ForecastCalculator {
   ForecastResult getDailyForecast(List fiveDayThreeHourData, int timezone) {
     final Map<String, dynamic> data = Map<String, dynamic>();
     for (final threeHourSlot in fiveDayThreeHourData) {
-      List dates = this._getDates(timezone, threeHourSlot.dt);
+      List dates = DateHelper.getDates(timezone, threeHourSlot.dt);
       String weekday = dates[0], date = dates[1];
 //
       if (data.containsKey(date)) {
@@ -332,7 +368,6 @@ class ForecastCalculator {
           'tempMin':
               threeHourSlot.main.temp != null ? threeHourSlot.main.temp : null,
           'description': "",
-          'icon': ""
         };
       }
       if (threeHourSlot.dtTxt.endsWith('12:00:00')) {
@@ -344,7 +379,7 @@ class ForecastCalculator {
     uniqueDates.sort();
     List<ForecastDay> forecastData = List<ForecastDay>();
     ForecastDay todayForecast;
-    String today = _getToday(timezone);
+    String today = DateHelper.getToday(timezone);
     for (final date in uniqueDates) {
       if (date == today) {
         todayForecast = ForecastDay(

@@ -5,25 +5,24 @@ class UpdateWeather {
 
   Future<CurrentWeather> _futureCurrentWeather;
   Future<FiveDayForecast> _futureFiveDayForecast;
+  Future<AllWeatherData> futureAllWeatherData;
+  WeatherData weatherData;
 
   UpdateWeather() {
-    WeatherData weatherData = new WeatherData();
-    this._futureCurrentWeather = weatherData.currentWeatherData();
-    this._futureFiveDayForecast = weatherData.fiveDayForecastData();
+    this.weatherData = new WeatherData();
+    this.futureAllWeatherData = weatherData.getWeatherData();
+
+//    this._futureCurrentWeather = weatherData.currentWeatherData();
+//    this._futureFiveDayForecast = weatherData.fiveDayForecastData();
   }
 
-    onButtonClick(){
-
-
-    }
-
-  Future<CurrentWeather> getWeatherToday(){
-    return this._futureCurrentWeather;
+  Future<AllWeatherData> getWeatherData(){
+    return this.weatherData.getWeatherData();
   }
 
-  Future<FiveDayForecast> getWeatherForecast(){
-    return this._futureFiveDayForecast;
-  }
+//  Future<FiveDayForecast> getWeatherForecast(){
+//    return this._futureFiveDayForecast;
+//  }
 
 
 }

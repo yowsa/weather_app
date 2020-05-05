@@ -11,7 +11,16 @@ class CurrentWeather {
   List<Weather> weather;
   Wind wind;
 
-  CurrentWeather({this.dt, this.id, this.main, this.name, this.sys, this.timezone, this.visibility, this.weather, this.wind});
+  CurrentWeather(
+      {this.dt,
+      this.id,
+      this.main,
+      this.name,
+      this.sys,
+      this.timezone,
+      this.visibility,
+      this.weather,
+      this.wind});
 
   factory CurrentWeather.fromJson(Map<String, dynamic> json) {
     return CurrentWeather(
@@ -22,7 +31,9 @@ class CurrentWeather {
       sys: json['sys'] != null ? Sys.fromJson(json['sys']) : null,
       timezone: json['timezone'],
       visibility: json['visibility'],
-      weather: json['weather'] != null ? (json['weather'] as List).map((i) => Weather.fromJson(i)).toList() : null,
+      weather: json['weather'] != null
+          ? (json['weather'] as List).map((i) => Weather.fromJson(i)).toList()
+          : null,
       wind: json['wind'] != null ? Wind.fromJson(json['wind']) : null,
     );
   }
@@ -52,28 +63,25 @@ class CurrentWeather {
 
 class FiveDayForecast {
   City city;
-  List<dynamic> forecast;
+  List<ForecastDay> forecast;
+  ForecastDay todayForecast;
 
-  FiveDayForecast({this.city, this.forecast});
+  FiveDayForecast({this.city, this.forecast, this.todayForecast});
 
   factory FiveDayForecast.fromJson(Map<String, dynamic> json) {
     var forecastCalculator = ForecastCalculator();
-    var fiveDayThreeHourData = json['list'] != null ? (json['list'] as List).map((i) => WeatherForecast.fromJson(i)).toList() : null;
+    var fiveDayThreeHourData = json['list'] != null
+        ? (json['list'] as List)
+            .map((i) => WeatherForecast.fromJson(i))
+            .toList()
+        : null;
+    ForecastResult dailyForecast = forecastCalculator.getDailyForecast(
+        fiveDayThreeHourData, json['city']['timezone']);
     return FiveDayForecast(
       city: json['city'] != null ? City.fromJson(json['city']) : null,
-      forecast: json['list'] != null ? forecastCalculator.getDailyForecast(fiveDayThreeHourData, json['city']['timezone']) : [],
+      forecast: json['list'] != null ? dailyForecast.fiveDayForecast : [],
+      todayForecast: json['list'] != null ? dailyForecast.todayForecast : [],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.city != null) {
-      data['city'] = this.city.toJson();
-    }
-    if (this.forecast != null) {
-      data['list'] = this.forecast.map((v) => v.toJson()).toList();
-    }
-    return data;
   }
 }
 
@@ -85,7 +93,13 @@ class Main {
   num tempMax;
   num tempMin;
 
-  Main({this.feelsLike, this.humidity, this.pressure, this.temp, this.tempMax, this.tempMin});
+  Main(
+      {this.feelsLike,
+      this.humidity,
+      this.pressure,
+      this.temp,
+      this.tempMax,
+      this.tempMin});
 
   factory Main.fromJson(Map<String, dynamic> json) {
     return Main(
@@ -196,7 +210,13 @@ class City {
   int sunset;
   int timezone;
 
-  City({this.country, this.id, this.name, this.sunrise, this.sunset, this.timezone});
+  City(
+      {this.country,
+      this.id,
+      this.name,
+      this.sunrise,
+      this.sunset,
+      this.timezone});
 
   factory City.fromJson(Map<String, dynamic> json) {
     return City(
@@ -221,8 +241,6 @@ class City {
   }
 }
 
-
-
 class WeatherForecast {
   int dt;
   Main main;
@@ -236,92 +254,118 @@ class WeatherForecast {
     return WeatherForecast(
       dt: json['dt'],
       main: json['main'] != null ? Main.fromJson(json['main']) : null,
-      weather: json['weather'] != null ? (json['weather'] as List).map((i) => Weather.fromJson(i)).toList() : null,
+      weather: json['weather'] != null
+          ? (json['weather'] as List).map((i) => Weather.fromJson(i)).toList()
+          : null,
       wind: json['wind'] != null ? Wind.fromJson(json['wind']) : null,
       dtTxt: json['dt_txt'],
     );
   }
 }
 
+class ForecastDay {
+  final String weekday;
+  final num tempMax;
+  final num tempMin;
+  final String description;
+  final String icon;
+  final String date;
 
-class ForecastDay{
-  String weekday;
-  num tempMax;
-  num tempMin;
-  String description;
-  String icon;
-  String date;
-
-  ForecastDay({this.weekday, this.tempMax, this.tempMin, this.description, this.icon, this.date});
+  ForecastDay(
+      {this.weekday,
+      this.tempMax,
+      this.tempMin,
+      this.description,
+      this.icon,
+      this.date});
 
   factory ForecastDay.fromJson(Map<String, dynamic> json) {
     return ForecastDay(
-      date : json['date'],
-      weekday : json['date']['weekday'],
-      tempMax : json['date']['tempMax'],
-      tempMin : json['date']['tempMin'],
-      description : json['date']['description'],
-      icon : json['date']['icon']
-    );
+        date: json['date'],
+        weekday: json['date']['weekday'],
+        tempMax: json['date']['tempMax'],
+        tempMin: json['date']['tempMin'],
+        description: json['date']['description'],
+        icon: json['date']['icon']);
   }
-
 }
 
+class ForecastResult {
+  final ForecastDay todayForecast;
+  final List<ForecastDay> fiveDayForecast;
 
-class ForecastCalculator{
+  ForecastResult({this.todayForecast, this.fiveDayForecast});
+}
 
-  List<dynamic> getDates(int timezone, int timestamp){
-    DateTime localToday = DateTime.now().add(Duration(seconds: timezone));
-    DateTime localDate = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000).add(Duration(seconds: timezone));
-    DateFormat formatter = DateFormat('yyyy-MM-dd');
-    String formattedToday = formatter.format(localToday);
-    String formattedDate = formatter.format(localDate);
+class ForecastCalculator {
+  List<dynamic> _getDates(int timezone, int timestamp) {
+    DateTime localDate = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
+        .add(Duration(seconds: timezone));
+    String formattedDate = DateFormat('yyyy-MM-dd').format(localDate);
     String weekday = DateFormat('E').format(localDate);
-    return [weekday, formattedDate, formattedToday];
+    return [weekday, formattedDate];
   }
 
-  List<dynamic> getDailyForecast(List fiveDayThreeHourData, int timezone){
-  final Map<String, dynamic> data = Map<String, dynamic>();
-  for(final threeHourSlot in fiveDayThreeHourData){
-    List dates = this.getDates(timezone, threeHourSlot.dt);
-    String weekday = dates[0], date = dates[1], today = dates[2];
+  String _getToday(int timezone) {
+    DateTime localToday = DateTime.now().add(Duration(seconds: timezone));
+    return DateFormat('yyyy-MM-dd').format(localToday);
+  }
+
+  ForecastResult getDailyForecast(List fiveDayThreeHourData, int timezone) {
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    for (final threeHourSlot in fiveDayThreeHourData) {
+      List dates = this._getDates(timezone, threeHourSlot.dt);
+      String weekday = dates[0], date = dates[1];
 //
-    if (data.containsKey(date)){
-      data[date]['tempMax'] = data[date]['tempMax'] > threeHourSlot.main.temp ? data[date]['tempMax'] : threeHourSlot.main.temp;
-      data[date]['tempMin'] = data[date]['tempMin'] < threeHourSlot.main.temp ? data[date]['tempMin'] : threeHourSlot.main.temp;
-
-    } else {
-      data[date]= {
-        'weekday': weekday,
-        'tempMax' : threeHourSlot.main.temp != null ? threeHourSlot.main.temp : null,
-        'tempMin' : threeHourSlot.main.temp != null ? threeHourSlot.main.temp : null,
-        'description' : "",
-        'icon' : ""
-      };
-    };
-    if (threeHourSlot.dtTxt.endsWith('12:00:00')){
-      data[date]['description'] = threeHourSlot.weather[0].description;
-      data[date]['icon'] = threeHourSlot.weather[0].icon;
-
+      if (data.containsKey(date)) {
+        data[date]['tempMax'] = data[date]['tempMax'] > threeHourSlot.main.temp
+            ? data[date]['tempMax']
+            : threeHourSlot.main.temp;
+        data[date]['tempMin'] = data[date]['tempMin'] < threeHourSlot.main.temp
+            ? data[date]['tempMin']
+            : threeHourSlot.main.temp;
+      } else {
+        data[date] = {
+          'weekday': weekday,
+          'tempMax':
+              threeHourSlot.main.temp != null ? threeHourSlot.main.temp : null,
+          'tempMin':
+              threeHourSlot.main.temp != null ? threeHourSlot.main.temp : null,
+          'description': "",
+          'icon': ""
+        };
+      }
+      if (threeHourSlot.dtTxt.endsWith('12:00:00')) {
+        data[date]['description'] = threeHourSlot.weather[0].description;
+        data[date]['icon'] = threeHourSlot.weather[0].icon;
+      }
     }
-  }
-  var uniqueDates = data.keys.toList();
-  uniqueDates.sort();
-  List<dynamic> forecastData = List<dynamic>();
-  for(final date in uniqueDates){
-    forecastData.add(
-        ForecastDay(
-          date : date,
-          weekday : data[date]['weekday'],
-          tempMax : data[date]['tempMax'],
-          tempMin : data[date]['tempMin'],
-          description : data[date]['description'],
-          icon : data[date]['icon']
-        )
-    );
-  }
+    var uniqueDates = data.keys.toList();
+    uniqueDates.sort();
+    List<ForecastDay> forecastData = List<ForecastDay>();
+    ForecastDay todayForecast;
+    String today = _getToday(timezone);
+    for (final date in uniqueDates) {
+      if (date == today) {
+        todayForecast = ForecastDay(
+            date: date,
+            weekday: data[date]['weekday'],
+            tempMax: data[date]['tempMax'],
+            tempMin: data[date]['tempMin'],
+            description: data[date]['description'],
+            icon: data[date]['icon']);
+      } else {
+        forecastData.add(ForecastDay(
+            date: date,
+            weekday: data[date]['weekday'],
+            tempMax: data[date]['tempMax'],
+            tempMin: data[date]['tempMin'],
+            description: data[date]['description'],
+            icon: data[date]['icon']));
+      }
+    }
 
-  return forecastData;
+    return ForecastResult(
+        todayForecast: todayForecast, fiveDayForecast: forecastData);
+  }
 }
-}
-

@@ -10,7 +10,7 @@ class WeatherData {
     // TODO: Update London, UK to id for accuracy
     // TODO: Move headers our to header parameter
     final response =
-    await http.get('https://api.openweathermap.org/data/2.5/weather?q=London,uk&appid=9fbe123d1a4f8d4264364fe686406a3d');
+    await http.get('https://api.openweathermap.org/data/2.5/weather?q=London,uk&appid=9fbe123d1a4f8d4264364fe686406a3d&units=metric');
 
     if (response.statusCode == 200) {
       return CurrentWeather.fromJson(json.decode(response.body));
@@ -23,7 +23,7 @@ class WeatherData {
     // TODO: Update London, UK to id for accuracy
     // TODO: Move headers our to header parameter
     final response =
-    await http.get('https://api.openweathermap.org/data/2.5/forecast?q=London,uk&appid=9fbe123d1a4f8d4264364fe686406a3d');
+    await http.get('https://api.openweathermap.org/data/2.5/forecast?q=London,uk&appid=9fbe123d1a4f8d4264364fe686406a3d&units=metric');
 
     if (response.statusCode == 200) {
       return FiveDayForecast.fromJson(json.decode(response.body));

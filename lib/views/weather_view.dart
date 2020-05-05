@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:weatherapp/viewmodel/weather.dart';
 import 'package:weatherapp/viewmodel/weather_data.dart';
 import 'package:weatherapp/presenter/weather_presenter.dart';
 
@@ -12,8 +11,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Future<CurrentWeather> _currentWeather;
-  Future<FiveDayForecast> _fiveDayForecast;
   UpdateWeather updateWeather = new UpdateWeather();
   Future<AllWeatherData> allWeatherData;
 
@@ -35,15 +32,20 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Weather App',
       theme: ThemeData(
-          primarySwatch: Colors.grey,
-          textTheme: TextTheme(body1: TextStyle(color: Colors.purple)),
-          backgroundColor: Colors.grey),
+          brightness: Brightness.dark,
+//          primarySwatch: Colors.grey,
+          primaryColor: Colors.white,
+//          textTheme: TextTheme(body1: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.grey[400],
+          accentColor: Colors.black,
+          fontFamily: 'Roboto'),
       home: Scaffold(
         appBar: AppBar(
           title: Text('Weather App'),
         ),
         body: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               FutureBuilder<AllWeatherData>(
                 future: allWeatherData,
@@ -51,90 +53,141 @@ class _MyAppState extends State<MyApp> {
                   if (snapshot.hasData) {
                     return Column(
                       children: <Widget>[
-                        Text(snapshot.data.currentWeather.name.toUpperCase()),
-                        Text(snapshot.data.currentWeather.dateTime),
-                        Icon(snapshot.data.currentWeather.weather[0].icon),
-                        Text(snapshot.data.currentWeather.weather[0].description
-                            .toUpperCase()),
-                        Text(
-                            '${snapshot.data.currentWeather.main.temp.round()}°C'),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Column(
-                              children: <Widget>[
-                                Text('HIGH'),
-                                Text(
-                                    '${snapshot.data.fiveDayForecast.todayForecast.tempMax.round()}°C')
-                              ],
-                            ),
-                            Column(
-                              children: <Widget>[
-                                Text('LOW'),
-                                Text(
-                                    '${snapshot.data.fiveDayForecast.todayForecast.tempMin.round()}°C')
-                              ],
-                            ),
-                            Column(
-                              children: <Widget>[
-                                Text('HUMIDITY'),
-                                Text(
-                                    '${snapshot.data.currentWeather.main.humidity}%')
-                              ],
-                            )
-                          ],
+                        Container(
+                          color: Theme.of(context).backgroundColor,
+                          child: Column(
+                            children: <Widget>[
+                              Text(snapshot.data.currentWeather.name
+                                  .toUpperCase()),
+                              Text(snapshot.data.currentWeather.dateTime),
+                              Icon(
+                                snapshot.data.currentWeather.weather[0].icon,
+                                size: 60.0,
+                              ),
+                              Text(snapshot
+                                  .data.currentWeather.weather[0].description
+                                  .toUpperCase()),
+                              Text(
+                                '${snapshot.data.currentWeather.main.temp.round()}°C',
+                                style: TextStyle(fontSize: 70.0),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8.0, right: 8.0),
+                                    child: Column(
+                                      children: <Widget>[
+                                        Text('HIGH'),
+                                        Text(
+                                            '${snapshot.data.fiveDayForecast.todayForecast.tempMax.round()}°C')
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                      height: 20,
+                                      child: VerticalDivider(
+                                          color:
+                                              Theme.of(context).primaryColor)),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8.0, right: 8.0),
+                                    child: Column(
+                                      children: <Widget>[
+                                        Text('LOW'),
+                                        Text(
+                                            '${snapshot.data.fiveDayForecast.todayForecast.tempMin.round()}°C')
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                      height: 20,
+                                      child: VerticalDivider(
+                                          color:
+                                              Theme.of(context).primaryColor)),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8.0, right: 8.0),
+                                    child: Column(
+                                      children: <Widget>[
+                                        Text('HUMIDITY'),
+                                        Text(
+                                            '${snapshot.data.currentWeather.main.humidity}%')
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                        ListView.builder(
-                            itemCount:
-                                snapshot.data.fiveDayForecast.forecast.length,
-                            shrinkWrap: true,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Card(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Row(
-                                      children: <Widget>[
-                                        Container(
-                                          width: 50.0,
-                                          child: Text(snapshot
-                                              .data
-                                              .fiveDayForecast
-                                              .forecast[index]
-                                              .weekday
+                        Container(
+                          color: Theme.of(context).backgroundColor,
+                          child: Image(
+                            width: MediaQuery.of(context).size.width,
+                            image: AssetImage('assets/london_transparent.png'),
+                          ),
+                        ),
+                        Container(
+                          color: Theme.of(context).accentColor,
+                          child: ListView.separated(
+                              separatorBuilder:
+                                  (BuildContext context, int index) => Divider(
+                                      height: 7,
+                                      color: Theme.of(context).primaryColor),
+                              itemCount:
+                                  snapshot.data.fiveDayForecast.forecast.length,
+                              shrinkWrap: true,
+                              itemBuilder: (BuildContext context, int index) {
+                                return Card(
+                                  color: Theme.of(context).accentColor,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Row(
+                                        children: <Widget>[
+                                          Container(
+                                            width: 50.0,
+                                            child: Text(snapshot
+                                                .data
+                                                .fiveDayForecast
+                                                .forecast[index]
+                                                .weekday
+                                                .toUpperCase()),
+                                          ),
+                                          Text(snapshot.data.fiveDayForecast
+                                              .forecast[index].description
                                               .toUpperCase()),
-                                        ),
-                                        Text(snapshot.data.fiveDayForecast
-                                            .forecast[index].description
-                                            .toUpperCase()),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: <Widget>[
-                                        Icon(
-                                          snapshot.data.fiveDayForecast
-                                              .forecast[index].icon,
-                                          color: Colors.green,
-                                          size: 30.0,
-                                        ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Icon(
+                                            snapshot.data.fiveDayForecast
+                                                .forecast[index].icon,
+                                            color: Colors.green,
+                                            size: 30.0,
+                                          ),
 //                                Text(snapshot.data.forecast[index].icon),
-                                        Container(
-                                            width: 40.0,
-                                            alignment: Alignment.centerRight,
-                                            child: Text(
-                                                '${snapshot.data.fiveDayForecast.forecast[index].tempMax.round()}°C')),
-                                        Container(
-                                            width: 40.0,
-                                            alignment: Alignment.centerRight,
-                                            child: Text(
-                                                '${snapshot.data.fiveDayForecast.forecast[index].tempMin.round()}°C')),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            })
+                                          Container(
+                                              width: 40.0,
+                                              alignment: Alignment.centerRight,
+                                              child: Text(
+                                                  '${snapshot.data.fiveDayForecast.forecast[index].tempMax.round()}°C')),
+                                          Container(
+                                              width: 40.0,
+                                              alignment: Alignment.centerRight,
+                                              child: Text(
+                                                  '${snapshot.data.fiveDayForecast.forecast[index].tempMin.round()}°C')),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                        )
                       ],
                     );
                   } else if (snapshot.hasError) {

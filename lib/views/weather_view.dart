@@ -269,8 +269,6 @@ class _WeatherAppState extends State<WeatherApp> {
                     weatherForecast(context, data),
                   ],
                 );
-              } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
               }
               // By default, show a loading spinner.
               return CircularProgressIndicator();

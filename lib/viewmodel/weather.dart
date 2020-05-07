@@ -226,23 +226,19 @@ class ForecastCalculator {
       if (!data.containsKey(date)) {
         data[date] = {
           'weekday': weekday,
-          'tempMax': threeHourSlot.mainWeatherData.temp != null
-              ? threeHourSlot.mainWeatherData.temp
-              : null,
-          'tempMin': threeHourSlot.mainWeatherData.temp != null
-              ? threeHourSlot.mainWeatherData.temp
-              : null,
+          'tempMax': threeHourSlot.mainWeatherData.temp,
+          'tempMin': threeHourSlot.mainWeatherData.temp
         };
         continue;
       }
       data[date] = {
         'weekday': weekday,
-        'tempMax': threeHourSlot.mainWeatherData.temp != null
+        'tempMax': threeHourSlot.mainWeatherData.temp > data[date]['tempMax']
             ? threeHourSlot.mainWeatherData.temp
-            : null,
-        'tempMin': threeHourSlot.mainWeatherData.temp != null
+            : data[date]['tempMax'],
+        'tempMin': threeHourSlot.mainWeatherData.temp < data[date]['tempMin']
             ? threeHourSlot.mainWeatherData.temp
-            : null,
+            : data[date]['tempMin'],
       };
     }
     return data;

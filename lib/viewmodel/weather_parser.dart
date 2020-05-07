@@ -22,7 +22,7 @@ class CurrentWeather {
 
   factory CurrentWeather.fromJson(Map<String, dynamic> json) {
     String date = DateHelper.localFormatDate(json['timezone'], json['dt'],
-        dateFormat: 'H:m EEEE, d MMM');
+        dateFormat: 'HH:mm EEEE, d MMM');
     return CurrentWeather(
         humidity: json['main']['humidity'],
         location: json['name'],
@@ -39,13 +39,16 @@ class FiveDayForecast {
 
   FiveDayForecast({this.forecast, this.todayForecast});
 
+  /// Parses the json input, runs it through WeatherCalculator to calculate
+  /// max and min temps and collate daily data then returns forecast for
+  /// the week and temp forecast for current day
   factory FiveDayForecast.fromJson(Map<String, dynamic> json) {
     var fiveDayThreeHourData = json['list'] != null
         ? (json['list'] as List)
             .map((i) => ThreeHourForecast.fromJson(i))
             .toList()
         : null;
-    ForecastResult dailyForecast = ForecastCalculator()
+    ForecastResult dailyForecast = WeatherCalculator()
         .getForecast(fiveDayThreeHourData, json['city']['timezone']);
     return FiveDayForecast(
       forecast: json['list'] != null ? dailyForecast.fiveDayForecast : [],
@@ -78,6 +81,3 @@ class ThreeHourForecast {
     );
   }
 }
-
-
-

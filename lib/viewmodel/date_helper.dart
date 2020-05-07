@@ -1,16 +1,16 @@
 import 'package:intl/intl.dart';
 
 class DateHelper {
-  static String localFormatDate(int timezone, int timestamp,
+  static String localFormatDate(int secondsFromUTC, int timestamp,
       {String dateFormat = 'yyyy-MM-dd'}) {
-    DateTime localDate = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
-        .add(Duration(seconds: timezone));
-    String formattedDate = DateFormat(dateFormat).format(localDate);
+    DateTime localDateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: true)
+        .add(Duration(seconds: secondsFromUTC));
+    String formattedDate = DateFormat(dateFormat).format(localDateTime);
     return formattedDate;
   }
 
-  static String getToday(int timezone) {
-    DateTime localToday = DateTime.now().add(Duration(seconds: timezone));
-    return DateFormat('yyyy-MM-dd').format(localToday);
+  static String getToday(int timezone, {String dateFormat = 'yyyy-MM-dd'}) {
+    DateTime localToday = DateTime.now().toUtc().add(Duration(seconds: timezone));
+    return DateFormat(dateFormat).format(localToday);
   }
 }

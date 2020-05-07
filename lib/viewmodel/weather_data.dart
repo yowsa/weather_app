@@ -11,8 +11,6 @@ class WeatherData {
     "units": "metric"
   };
 
-  WeatherData();
-
   Future<CurrentWeather> currentWeatherData() async {
     final response = await http.get(
         Uri.https("api.openweathermap.org", "/data/2.5/weather", parameters));

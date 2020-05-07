@@ -6,7 +6,6 @@ class UpdateWeather {
 
   UpdateWeather() {
     this.weatherData = new WeatherData();
-//    this.futureAllWeatherData = weatherData.getWeatherData();
   }
 
   Future<AllWeatherData> getWeatherData(){

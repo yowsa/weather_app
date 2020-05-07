@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'date_helper.dart';
 
 
-class ForecastCalculator {
+class WeatherCalculator {
   Map<String, dynamic> _getWeatherDescriptions(
       List fiveDayThreeHourData, int timezone) {
     final Map<String, dynamic> data = Map<String, dynamic>();

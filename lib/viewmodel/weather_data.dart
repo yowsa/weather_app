@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'weather.dart';
+import 'weather_parser.dart';
 
 class WeatherData {
   Map<String, String> parameters = {
